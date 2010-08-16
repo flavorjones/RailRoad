@@ -46,7 +46,7 @@ class ModelsDiagram < AppDiagram
     generated = false
         
     # Is current_clas derived from ActiveRecord::Base?
-    if current_class.respond_to?'reflect_on_all_associations'
+    if current_class.respond_to? 'reflect_on_all_associations'
 
 
       node_attribs = []
@@ -123,8 +123,8 @@ class ModelsDiagram < AppDiagram
     
     # from patch #12384
     # if assoc.class_name == assoc.name.to_s.singularize.camelize
-    assoc_class_name = (assoc.class_name.respond_to? 'underscore') ? assoc.class_name.underscore.singularize.camelize : assoc.class_name 
-    if assoc_class_name == assoc.name.to_s.singularize.camelize
+    assoc_class_name = (assoc.class_name.respond_to? 'underscore') ? assoc.class_name.underscore.camelize : assoc.class_name 
+    if assoc_class_name == assoc.name.to_s.camelize
       assoc_name = ''
     else
       assoc_name = assoc.name.to_s
