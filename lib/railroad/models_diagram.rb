@@ -93,7 +93,7 @@ class ModelsDiagram < AppDiagram
       associations.each do |a|
         process_association current_class.name, a
       end
-    elsif @options.all && (current_class.is_a? Class)
+    elsif (@options.all && (current_class.is_a? Class)) || current_class.ancestors.map(&:to_s).include?("ActiveHash::Base")
       # Not ActiveRecord::Base model
       node_type = @options.brief ? 'class-brief' : 'class'
       @graph.add_node [node_type, current_class.name]
@@ -116,9 +116,6 @@ class ModelsDiagram < AppDiagram
 
     STDERR.print "\t\tProcessing model association #{assoc.name.to_s}\n" if @options.verbose
 
-    # Skip "belongs_to" associations
-    return if assoc.macro.to_s == 'belongs_to' && !@options.show_belongs_to
-
     # Only non standard association names needs a label
     
     # from patch #12384
@@ -130,11 +127,16 @@ class ModelsDiagram < AppDiagram
       assoc_name = assoc.name.to_s
     end 
 
+    # Skip "belongs_to" associations
+    return if assoc.macro.to_s == 'belongs_to' && !@options.show_belongs_to && assoc_class_name !~ /AssetClass|TimeUnit|QuotingConvention/
+
+    return if assoc.macro.to_s == 'has_many' && assoc.options[:through]
+
     if assoc.macro.to_s == 'has_one' 
       assoc_type = 'one-one'
-    elsif assoc.macro.to_s == 'has_many' && (! assoc.options[:through])
+    elsif assoc.macro.to_s == 'has_many'
       assoc_type = 'one-many'
-    else # habtm or has_many, :through
+    else # habtm
       return if @habtm.include? [assoc.class_name, class_name, assoc_name]
       assoc_type = 'many-many'
       @habtm << [class_name, assoc.class_name, assoc_name]
