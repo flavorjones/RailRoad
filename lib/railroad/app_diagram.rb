@@ -73,7 +73,7 @@ class AppDiagram
     STDERR.print "Loading application environment\n" if @options.verbose
     begin
       disable_stdout
-      require "config/environment"
+      require "./config/environment"
       enable_stdout
     rescue LoadError
       enable_stdout
@@ -86,7 +86,7 @@ class AppDiagram
   # Prevents Rails application from writing to STDOUT
   def disable_stdout
     @old_stdout = STDOUT.dup
-    STDOUT.reopen(PLATFORM =~ /mswin/ ? "NUL" : "/dev/null")
+    STDOUT.reopen(RbConfig::CONFIG["host_os"] =~ /mswin/ ? "NUL" : "/dev/null")
   end
 
   # Restore STDOUT  
